@@ -236,14 +236,9 @@ __blkdev_direct_IO_simple(struct kiocb *iocb, struct iov_iter *iter,
 		set_current_state(TASK_UNINTERRUPTIBLE);
 		if (!READ_ONCE(bio.bi_private))
 			break;
-#ifdef CONFIG_EHP
-		if (!blk_poll(bdev_get_queue(bdev), qc))
-			io_schedule(); 
-#else
 		if (!(iocb->ki_flags & IOCB_HIPRI) ||
 		    !blk_poll(bdev_get_queue(bdev), qc))
 			io_schedule();
-#endif
 	}
 	__set_current_state(TASK_RUNNING);
 
@@ -406,14 +401,9 @@ __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter, int nr_pages)
 		if (!READ_ONCE(dio->waiter))
 			break;
 
-#ifdef CONFIG_EHP
-		if (!blk_poll(bdev_get_queue(bdev), qc))
-			io_schedule();
-#else
 		if (!(iocb->ki_flags & IOCB_HIPRI) ||
 		    !blk_poll(bdev_get_queue(bdev), qc))
 			io_schedule();
-#endif
 	}
 	__set_current_state(TASK_RUNNING);
 
